@@ -1,37 +1,23 @@
-<script setup lang="ts">
-  
-import { ref, onMounted } from 'vue'
-import type { Tarefa } from './tipos'
-import CartaoTarefa from './components/CartaoTarefa.vue'
-
-const tarefas = ref<Tarefa[]>([])
-
-
-async function buscarTarefas() {
-  const resposta = await fetch('http://localhost:3000/tarefas')
-  tarefas.value = await resposta.json()
-}
-
-onMounted(() => {
-  buscarTarefas()
-})
-
-</script>
-
 <template>
-  <main>
-    <h1>Lista de tarefas</h1>
+  <div class="app-shell">
+    <header class="cabecalho">
+      <div class="cabecalho-conteudo">
+        <RouterLink class="marca" to="/" aria-label="Gerenciador de tarefas — início">
+          <span class="marca-icone" aria-hidden="true">GT</span>
+          <span>Gerenciador de tarefas</span>
+        </RouterLink>
 
-    <section>
-      <CartaoTarefa
-        v-for="tarefa in tarefas"
-        :key="tarefa.id"
-        :tarefa="tarefa"
-      />
-    </section>
-  </main>
+        <nav class="navegacao" aria-label="Navegação principal">
+          <RouterLink to="/" class="link-nav" exact-active-class="ativo">Tarefas</RouterLink>
+          <RouterLink to="/projetos" class="link-nav" active-class="ativo">Projetos</RouterLink>
+        </nav>
+      </div>
+    </header>
+
+    <main class="conteudo-principal">
+      <RouterView />
+    </main>
+
+    <footer class="rodape">Gerenciador de Tarefas Acadêmicas</footer>
+  </div>
 </template>
-
-<style scoped>
-/* Estilos específicos deste componente */
-</style>

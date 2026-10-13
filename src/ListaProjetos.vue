@@ -1,31 +1,47 @@
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { Projeto } from './tipos'
 import CartaoProjeto from './components/CartaoProjeto.vue'
 
 const projetos = ref<Projeto[]>([])
+const carregando = ref(true)
+const erro = ref('')
 
 async function buscarProjetos() {
-  const resposta = await fetch('http://localhost:3000/projetos')
-  projetos.value = await resposta.json()
+  carregando.value = true
+  erro.value = ''
+
+  try {
+    const resposta = await fetch('http://localhost:3000/projetos')
+    if (!resposta.ok) {
+      throw new Error('Não foi possível carregar a lista de projetos.')
+    }
+    projetos.value = (await resposta.json()) as Projeto[]
+  } catch (erroBusca) {
+    erro.value = erroBusca instanceof Error
+      ? erroBusca.message
+      : 'Ocorreu um erro ao carregar os projetos.'
+  } finally {
+    carregando.value = false
+  }
 }
 
-onMounted(() => {
-  buscarProjetos()
-})
+onMounted(buscarProjetos)
 </script>
 
 <template>
-  <main>
-    <h1>Lista de projetos</h1>
+  <section class="pagina">
+    <div class="titulo-pagina">
+      <p class="sobretitulo">VISÃO GERAL</p>
+      <h1>Projetos</h1>
+      <p class="texto-introdutorio">Acesse um projeto para consultar suas informações e tarefas.</p>
+    </div>
 
-    <section>
-      <CartaoProjeto
-        v-for="projeto in projetos"
-        :key="projeto.id"
-        :projeto="projeto"
-      />
+    <p v-if="carregando" class="mensagem" role="status">Carregando projetos...</p>
+    <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">{{ erro }} Verifique se o json-server está rodando na porta 3000.</p>
+    <div v-else-if="projetos.length === 0" class="mensagem">Nenhum projeto cadastrado.</div>
+    <section v-else class="grade-cartoes" aria-label="Lista de projetos">
+      <CartaoProjeto v-for="projeto in projetos" :key="projeto.id" :projeto="projeto" />
     </section>
-  </main>
+  </section>
 </template>
