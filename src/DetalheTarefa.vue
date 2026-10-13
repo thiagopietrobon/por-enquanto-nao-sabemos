@@ -50,7 +50,8 @@ watch(idTarefa, buscarTarefa, { immediate: true })
     </div>
 
     <p v-if="carregando" class="mensagem" role="status">Buscando tarefa...</p>
-    <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">{{ erro }} Verifique se o json-server está rodando na porta 3000.</p>
+    <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">{{ erro }} Verifique se o json-server está rodando
+      na porta 3000.</p>
 
     <article v-else-if="tarefa" class="painel-detalhes">
       <div class="painel-titulo">

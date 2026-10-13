@@ -35,7 +35,8 @@ onMounted(buscarTarefas)
     </div>
 
     <p v-if="carregando" class="mensagem" role="status">Carregando tarefas...</p>
-    <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">{{ erro }} Verifique se o json-server está rodando na porta 3000.</p>
+    <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">{{ erro }} Verifique se o json-server está rodando
+      na porta 3000.</p>
     <div v-else-if="tarefas.length === 0" class="mensagem">Nenhuma tarefa cadastrada.</div>
     <section v-else class="grade-cartoes" aria-label="Lista de tarefas">
       <CartaoTarefa v-for="tarefa in tarefas" :key="tarefa.id" :tarefa="tarefa" />
