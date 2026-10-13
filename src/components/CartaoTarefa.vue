@@ -28,3 +28,51 @@ defineProps<{
     </RouterLink>
   </article>
 </template>
+
+<style scoped>
+.cartao-tarefa h2 {
+  margin: 15px 0 9px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.cartao-descricao {
+  margin: 0;
+  color: var(--texto-suave);
+  line-height: 1.6;
+}
+
+.cartao-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.etiqueta-status {
+  background: #eef6ff;
+}
+
+.etiqueta-prioridade {
+  background: #fbf7ec;
+  border-color: #f1e5c6;
+  color: #89651b;
+}
+
+.cartao-metadados {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.cartao-metadados p {
+  margin: 5px 0;
+  color: #536579;
+  font-size: 13px;
+}
+
+@media (max-width: 420px) {
+  .cartao-tarefa {
+    padding: 18px;
+  }
+}
+</style>
