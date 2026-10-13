@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { listarProjetos } from './api'
 import type { Projeto } from './tipos'
 import CartaoProjeto from './components/CartaoProjeto.vue'
 
@@ -12,11 +13,7 @@ async function buscarProjetos() {
   erro.value = ''
 
   try {
-    const resposta = await fetch('http://localhost:3000/projetos')
-    if (!resposta.ok) {
-      throw new Error('Não foi possível carregar a lista de projetos.')
-    }
-    projetos.value = (await resposta.json()) as Projeto[]
+    projetos.value = await listarProjetos()
   } catch (erroBusca) {
     erro.value = erroBusca instanceof Error
       ? erroBusca.message

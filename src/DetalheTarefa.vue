@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { buscarTarefa as buscarTarefaApi, ErroApi } from './api'
 import type { Tarefa } from './tipos'
 
 const rota = useRoute()
@@ -15,15 +16,11 @@ async function buscarTarefa(id: string) {
   carregando.value = true
 
   try {
-    const resposta = await fetch(`http://localhost:3000/tarefas/${encodeURIComponent(id)}`)
-    if (resposta.status === 404) {
+    tarefa.value = await buscarTarefaApi(id)
+  } catch (erroBusca) {
+    if (erroBusca instanceof ErroApi && erroBusca.status === 404) {
       throw new Error(`Nenhuma tarefa foi encontrada com o ID ${id}.`)
     }
-    if (!resposta.ok) {
-      throw new Error('Não foi possível consultar os detalhes da tarefa.')
-    }
-    tarefa.value = (await resposta.json()) as Tarefa
-  } catch (erroBusca) {
     erro.value = erroBusca instanceof Error
       ? erroBusca.message
       : 'Ocorreu um erro ao consultar a tarefa.'

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { buscarProjeto as buscarProjetoApi, ErroApi } from './api'
 import type { Projeto, Tarefa } from './tipos'
 import CartaoTarefa from './components/CartaoTarefa.vue'
 
@@ -18,30 +19,13 @@ async function buscarProjeto(id: string) {
   carregando.value = true
 
   try {
-    const [respostaProjeto, respostaTarefas] = await Promise.all([
-      fetch(`http://localhost:3000/projetos/${encodeURIComponent(id)}`),
-      fetch('http://localhost:3000/tarefas'),
-    ])
-
-    if (respostaProjeto.status === 404) {
+    const dadosProjeto = await buscarProjetoApi(id)
+    projeto.value = dadosProjeto
+    tarefas.value = dadosProjeto.tarefas
+  } catch (erroBusca) {
+    if (erroBusca instanceof ErroApi && erroBusca.status === 404) {
       throw new Error(`Nenhum projeto foi encontrado com o ID ${id}.`)
     }
-    if (!respostaProjeto.ok) {
-      throw new Error('Não foi possível consultar os dados do projeto.')
-    }
-    if (!respostaTarefas.ok) {
-      throw new Error('Não foi possível consultar as tarefas deste projeto.')
-    }
-
-    projeto.value = (await respostaProjeto.json()) as Projeto
-
-    // Filtra no frontend usando o campo de vínculo definido no contrato: projetoId.
-    // String() evita diferença entre IDs que cheguem como número ou texto.
-    const todasTarefas = (await respostaTarefas.json()) as Tarefa[]
-    tarefas.value = todasTarefas.filter(
-      (tarefa) => String(tarefa.projetoId) === String(projeto.value?.id),
-    )
-  } catch (erroBusca) {
     erro.value = erroBusca instanceof Error
       ? erroBusca.message
       : 'Ocorreu um erro ao consultar o projeto.'

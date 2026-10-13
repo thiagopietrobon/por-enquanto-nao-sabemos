@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { listarTarefas } from './api'
 import type { Tarefa } from './tipos'
 import CartaoTarefa from './components/CartaoTarefa.vue'
 
@@ -12,11 +13,7 @@ async function buscarTarefas() {
   erro.value = ''
 
   try {
-    const resposta = await fetch('http://localhost:3000/tarefas')
-    if (!resposta.ok) {
-      throw new Error('Não foi possível carregar a lista de tarefas.')
-    }
-    tarefas.value = (await resposta.json()) as Tarefa[]
+    tarefas.value = await listarTarefas()
   } catch (erroBusca) {
     erro.value = erroBusca instanceof Error
       ? erroBusca.message
