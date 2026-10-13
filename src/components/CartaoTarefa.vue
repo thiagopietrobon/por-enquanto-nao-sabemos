@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import type { Tarefa } from '../tipos'
+import { formatarData } from '../utils'
 
 defineProps<{
   tarefa: Tarefa
 }>()
 
-function formatarData(data: string) {
-  if (!data) return 'Não informado'
-  const partes = data.split('-')
-  return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : data
-}
 </script>
 
 <template>

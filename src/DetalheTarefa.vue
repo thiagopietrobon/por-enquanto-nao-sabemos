@@ -3,39 +3,41 @@ import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { buscarTarefa as buscarTarefaApi, ErroApi } from './api'
 import type { Tarefa } from './tipos'
+import { formatarData } from './utils'
 
 const rota = useRoute()
 const tarefa = ref<Tarefa | null>(null)
 const carregando = ref(false)
 const erro = ref('')
 const idTarefa = computed(() => String(rota.params.id ?? ''))
+let requisicaoAtual = 0
 
 async function buscarTarefa(id: string) {
+  const numeroRequisicao = ++requisicaoAtual
   tarefa.value = null
   erro.value = ''
   carregando.value = true
 
   try {
-    tarefa.value = await buscarTarefaApi(id)
+    const dadosTarefa = await buscarTarefaApi(id)
+    if (numeroRequisicao !== requisicaoAtual) return
+    tarefa.value = dadosTarefa
   } catch (erroBusca) {
+    if (numeroRequisicao !== requisicaoAtual) return
     if (erroBusca instanceof ErroApi && erroBusca.status === 404) {
-      throw new Error(`Nenhuma tarefa foi encontrada com o ID ${id}.`)
+      erro.value = `Nenhuma tarefa foi encontrada com o ID ${id}.`
+      return
     }
     erro.value = erroBusca instanceof Error
       ? erroBusca.message
       : 'Ocorreu um erro ao consultar a tarefa.'
   } finally {
-    carregando.value = false
+    if (numeroRequisicao === requisicaoAtual) carregando.value = false
   }
 }
 
 watch(idTarefa, buscarTarefa, { immediate: true })
 
-function formatarData(data: string) {
-  if (!data) return 'Não informado'
-  const partes = data.split('-')
-  return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : data
-}
 </script>
 
 <template>

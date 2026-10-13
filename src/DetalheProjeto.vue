@@ -4,6 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import { buscarProjeto as buscarProjetoApi, ErroApi } from './api'
 import type { Projeto, Tarefa } from './tipos'
 import CartaoTarefa from './components/CartaoTarefa.vue'
+import { formatarData } from './utils'
 
 const rota = useRoute()
 const projeto = ref<Projeto | null>(null)
@@ -11,8 +12,10 @@ const tarefas = ref<Tarefa[]>([])
 const carregando = ref(false)
 const erro = ref('')
 const idProjeto = computed(() => String(rota.params.id ?? ''))
+let requisicaoAtual = 0
 
 async function buscarProjeto(id: string) {
+  const numeroRequisicao = ++requisicaoAtual
   projeto.value = null
   tarefas.value = []
   erro.value = ''
@@ -20,27 +23,25 @@ async function buscarProjeto(id: string) {
 
   try {
     const dadosProjeto = await buscarProjetoApi(id)
+    if (numeroRequisicao !== requisicaoAtual) return
     projeto.value = dadosProjeto
     tarefas.value = dadosProjeto.tarefas
   } catch (erroBusca) {
+    if (numeroRequisicao !== requisicaoAtual) return
     if (erroBusca instanceof ErroApi && erroBusca.status === 404) {
-      throw new Error(`Nenhum projeto foi encontrado com o ID ${id}.`)
+      erro.value = `Nenhum projeto foi encontrado com o ID ${id}.`
+      return
     }
     erro.value = erroBusca instanceof Error
       ? erroBusca.message
       : 'Ocorreu um erro ao consultar o projeto.'
   } finally {
-    carregando.value = false
+    if (numeroRequisicao === requisicaoAtual) carregando.value = false
   }
 }
 
 watch(idProjeto, buscarProjeto, { immediate: true })
 
-function formatarData(data: string) {
-  if (!data) return 'Não informado'
-  const partes = data.split('-')
-  return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : data
-}
 </script>
 
 <template>
