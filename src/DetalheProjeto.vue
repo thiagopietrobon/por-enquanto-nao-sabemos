@@ -62,6 +62,13 @@ watch(idProjeto, buscarProjeto, { immediate: true })
         <div class="painel-titulo">
           <span class="etiqueta">Projeto #{{ projeto.id }}</span>
           <h2>{{ projeto.nome }}</h2>
+
+          <RouterLink
+            class="botao"
+            :to="`/projetos/${projeto.id}/editar`"
+          >
+            Editar projeto
+          </RouterLink>
         </div>
         <dl class="lista-detalhes">
           <div class="item-detalhe">

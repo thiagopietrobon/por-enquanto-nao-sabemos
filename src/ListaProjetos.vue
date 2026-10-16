@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { listarProjetos } from './api'
 import type { Projeto } from './tipos'
 import CartaoProjeto from './components/CartaoProjeto.vue'
@@ -31,8 +32,14 @@ onMounted(buscarProjetos)
     <div class="titulo-pagina">
       <p class="sobretitulo">VISÃO GERAL</p>
       <h1>Projetos</h1>
-      <p class="texto-introdutorio">Acesse um projeto para consultar suas informações e tarefas.</p>
-    </div>
+      <p class="texto-introdutorio">
+        Acesse um projeto para consultar suas informações e tarefas.
+      </p>
+
+      <RouterLink to="/projetos/novo" class="botao">
+        Novo projeto
+      </RouterLink>
+  </div>
 
     <p v-if="carregando" class="mensagem" role="status">Carregando projetos...</p>
     <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">{{ erro }} Verifique se o json-server está rodando
