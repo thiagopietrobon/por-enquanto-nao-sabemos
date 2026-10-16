@@ -55,6 +55,21 @@ export function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projeto> {
 }
 
 
+export function atualizarProjeto(
+    id: string,
+    projeto: Omit<Projeto, "id">,
+): Promise<Projeto> {
+    return requisitar<Projeto>(`/projetos/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(projeto),
+    });
+}
+
+
+
 export function listarTarefas(): Promise<Tarefa[]> {
     return requisitar<Tarefa[]>("/tarefas");
 }
