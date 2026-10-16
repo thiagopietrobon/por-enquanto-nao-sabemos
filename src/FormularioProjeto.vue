@@ -77,50 +77,54 @@ async function salvarProjeto() {
 </script>
 
 <template>
-  <main>
-    <h1>{{ modoEdicao ? 'Editar projeto' : 'Novo projeto' }}</h1>
+  <main class="pagina">
+        <h1>{{ modoEdicao ? 'Editar projeto' : 'Novo projeto' }}</h1>
 
-    <p v-if="erro" role="alert">
-      {{ erro }}
-    </p>
+        <p v-if="erro" role="alert">
+        {{ erro }}
+        </p>
 
-    <p v-if="carregando">
-      Carregando projeto...
-    </p>
+        <p v-if="carregando">
+        Carregando projeto...
+        </p>
 
-    <form v-else @submit.prevent="salvarProjeto">
-      <div>
-        <label for="nome">Nome do projeto</label>
-        <input
-          id="nome"
-          v-model="nome"
-          type="text"
-          required
-        />
-      </div>
+        <form
+  v-else
+  class="formulario-projeto"
+  @submit.prevent="salvarProjeto"
+>
+        <div class="formulario-campo">
+            <label for="nome">Nome do projeto</label>
+            <input
+            id="nome"
+            v-model="nome"
+            type="text"
+            required
+            />
+        </div>
 
-      <div>
-        <label for="descricao">Descrição</label>
-        <textarea
-          id="descricao"
-          v-model="descricao"
-          required
-        ></textarea>
-      </div>
+        <div class="formulario-campo">
+            <label for="descricao">Descrição</label>
+            <textarea
+            id="descricao"
+            v-model="descricao"
+            required
+            ></textarea>
+        </div>
 
-      <div>
-        <label for="disciplina">Disciplina</label>
-        <input
-          id="disciplina"
-          v-model="disciplina"
-          type="text"
-          required
-        />
-      </div>
+        <div class="formulario-campo">
+            <label for="disciplina">Disciplina</label>
+            <input
+            id="disciplina"
+            v-model="disciplina"
+            type="text"
+            required
+            />
+        </div>
 
-      <button type="submit" :disabled="salvando">
-        {{ salvando ? 'Salvando...' : 'Salvar projeto' }}
-      </button>
-    </form>
+        <button type="submit" :disabled="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar projeto' }}
+        </button>
+        </form>
   </main>
 </template>
