@@ -16,8 +16,12 @@ export class ErroApi extends Error {
     }
 }
 
-async function requisitar<T>(caminho: string): Promise<T> {
-    const resposta = await fetch(`${API_URL}${caminho}`);
+
+async function requisitar<T>(
+    caminho: string,
+    opcoes?: RequestInit,
+): Promise<T> {
+    const resposta = await fetch(`${API_URL}${caminho}`, opcoes);
 
     if (!resposta.ok) {
         throw new ErroApi(
@@ -29,6 +33,7 @@ async function requisitar<T>(caminho: string): Promise<T> {
     return (await resposta.json()) as T;
 }
 
+
 export function listarProjetos(): Promise<Projeto[]> {
     return requisitar<Projeto[]>("/projetos");
 }
@@ -38,6 +43,17 @@ export function buscarProjeto(id: string): Promise<ProjetoComTarefas> {
         `/projetos/${encodeURIComponent(id)}?_embed=tarefas`,
     );
 }
+
+export function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projeto> {
+    return requisitar<Projeto>("/projetos", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(projeto),
+    });
+}
+
 
 export function listarTarefas(): Promise<Tarefa[]> {
     return requisitar<Tarefa[]>("/tarefas");
