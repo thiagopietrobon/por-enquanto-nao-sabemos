@@ -44,6 +44,29 @@ export function buscarProjeto(id: string): Promise<ProjetoComTarefas> {
     );
 }
 
+export function criarTarefa(tarefa: Omit<Tarefa, "id">): Promise<Tarefa> {
+    return requisitar<Tarefa>("/tarefas", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tarefa),
+    });
+}
+
+export function atualizarTarefa(
+    id: string,
+    tarefa: Omit<Tarefa, "id">,
+): Promise<Tarefa> {
+    return requisitar<Tarefa>(`/tarefas/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tarefa),
+    });
+}
+
 export function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projeto> {
     return requisitar<Projeto>("/projetos", {
         method: "POST",
