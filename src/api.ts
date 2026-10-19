@@ -44,13 +44,19 @@ export function buscarProjeto(id: string): Promise<ProjetoComTarefas> {
     );
 }
 
-export function criarTarefa(tarefa: Omit<Tarefa, "id">): Promise<Tarefa> {
+export async function criarTarefa(tarefa: Omit<Tarefa, "id">): Promise<Tarefa> {
+    const tarefas = await listarTarefas();
+    const idsNumericos = tarefas
+        .map((t) => Number(t.id))
+        .filter((n) => !Number.isNaN(n));
+    const proximoId = idsNumericos.length > 0 ? String(Math.max(...idsNumericos) + 1) : "1";
+
     return requisitar<Tarefa>("/tarefas", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(tarefa),
+        body: JSON.stringify({ id: proximoId, ...tarefa }),
     });
 }
 
@@ -67,13 +73,19 @@ export function atualizarTarefa(
     });
 }
 
-export function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projeto> {
+export async function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projeto> {
+    const projetos = await listarProjetos();
+    const idsNumericos = projetos
+        .map((p) => Number(p.id))
+        .filter((n) => !Number.isNaN(n));
+    const proximoId = idsNumericos.length > 0 ? String(Math.max(...idsNumericos) + 1) : "1";
+
     return requisitar<Projeto>("/projetos", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(projeto),
+        body: JSON.stringify({ id: proximoId, ...projeto }),
     });
 }
 
