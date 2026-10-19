@@ -100,7 +100,15 @@ watch(idProjeto, buscarProjeto, { immediate: true })
             <p class="sobretitulo">ATIVIDADES</p>
             <h2>Tarefas do projeto</h2>
           </div>
-          <span class="contador">{{ tarefas.length }} {{ tarefas.length === 1 ? 'tarefa' : 'tarefas' }}</span>
+          <div class="acoes-secao">
+            <span class="contador">{{ tarefas.length }} {{ tarefas.length === 1 ? 'tarefa' : 'tarefas' }}</span>
+            <RouterLink
+              class="botao"
+              :to="{ path: '/tarefas/nova', query: { projetoId: projeto.id } }"
+            >
+              Nova tarefa
+            </RouterLink>
+          </div>
         </div>
 
         <p v-if="tarefas.length === 0" class="mensagem">Este projeto ainda não possui tarefas vinculadas.</p>

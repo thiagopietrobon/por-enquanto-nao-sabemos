@@ -311,6 +311,13 @@ h1 {
     white-space: nowrap;
 }
 
+.acoes-secao {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 .rodape {
     border-top: 1px solid var(--borda);
     padding: 22px 20px;
@@ -383,8 +390,9 @@ h1 {
 }
 
 
-/* Formulário de cadastro e edição de projetos */
-.formulario-projeto {
+/* Formulário de cadastro e edição de projetos e tarefas */
+.formulario-projeto,
+.formulario-tarefa {
     max-width: 760px;
     padding: 28px;
     border: 1px solid var(--borda);
@@ -400,6 +408,12 @@ h1 {
     margin-bottom: 22px;
 }
 
+.formulario-linha {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
 .formulario-campo label {
     color: var(--azul-escuro);
     font-size: 14px;
@@ -407,6 +421,7 @@ h1 {
 }
 
 .formulario-campo input,
+.formulario-campo select,
 .formulario-campo textarea {
     width: 100%;
     padding: 12px 14px;
@@ -428,6 +443,7 @@ h1 {
 }
 
 .formulario-campo input:focus,
+.formulario-campo select:focus,
 .formulario-campo textarea:focus {
     border-color: var(--azul);
     background: var(--branco);
@@ -498,7 +514,8 @@ h1 {
 }
 
 @media (max-width: 520px) {
-    .formulario-projeto {
+    .formulario-projeto,
+    .formulario-tarefa {
         padding: 20px;
     }
 

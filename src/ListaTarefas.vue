@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { listarTarefas } from './api'
 import type { Tarefa } from './tipos'
 import CartaoTarefa from './components/CartaoTarefa.vue'
@@ -32,6 +33,10 @@ onMounted(buscarTarefas)
       <p class="sobretitulo">ORGANIZAÇÃO</p>
       <h1>Tarefas</h1>
       <p class="texto-introdutorio">Acompanhe as atividades e consulte os detalhes de cada tarefa.</p>
+
+      <RouterLink to="/tarefas/nova" class="botao">
+        Nova tarefa
+      </RouterLink>
     </div>
 
     <p v-if="carregando" class="mensagem" role="status">Carregando tarefas...</p>
