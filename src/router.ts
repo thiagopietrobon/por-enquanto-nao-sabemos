@@ -16,6 +16,7 @@ export const router = createRouter({
     { path: '/projetos/novo', name: 'novo-projeto', component: FormularioProjeto },
     { path: '/projetos/:id/editar', name: 'editar-projeto', component: FormularioProjeto },
     { path: '/projetos/:id', name: 'detalhe-projeto', component: DetalheProjeto },
+    { path: '/tarefas/:id/editar', name: 'editar-tarefa', component: FormularioTarefa },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })
