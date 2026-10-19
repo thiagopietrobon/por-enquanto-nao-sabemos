@@ -19,3 +19,8 @@ export interface Tarefa {
     prazo: string;
 }
 export type NovaTarefa = Omit<Tarefa, "id">;
+export type AtualizarTarefa = Partial<Omit<Tarefa, "id">>;
+
+export type NovoProjeto = Omit<Projeto, "id">;
+export type AtualizarProjeto = Partial<Omit<Projeto, "id">>;
+
