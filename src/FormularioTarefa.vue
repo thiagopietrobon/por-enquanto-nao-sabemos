@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -26,6 +25,7 @@ const projetos = ref<Projeto[]>([])
 const carregando = ref(true)
 const salvando = ref(false)
 const erro = ref('')
+const erroCarregamento = ref(false)
 
 const projetoId = ref(String(rota.query.projetoId ?? ''))
 const titulo = ref('')
@@ -62,6 +62,7 @@ async function carregarFormulario() {
 
   carregando.value = true
   erro.value = ''
+  erroCarregamento.value = false
 
   try {
     projetos.value = await listarProjetos()
@@ -84,6 +85,8 @@ async function carregarFormulario() {
     }
   } catch (erroBusca) {
     if (numeroRequisicao !== requisicaoAtual) return
+
+    erroCarregamento.value = true
 
     erro.value = erroBusca instanceof Error
       ? erroBusca.message
@@ -146,12 +149,9 @@ async function salvarTarefa() {
 
 <template>
   <main class="pagina">
-    <RouterLink
-      class="link-voltar"
-      :to="modoEdicao
-        ? { name: 'detalhe-tarefa', params: { id: idTarefa } }
-        : '/'"
-    >
+    <RouterLink class="link-voltar" :to="modoEdicao
+      ? { name: 'detalhe-tarefa', params: { id: idTarefa } }
+      : '/'">
       ← {{ modoEdicao ? 'Voltar para tarefa' : 'Voltar para tarefas' }}
     </RouterLink>
 
@@ -175,15 +175,15 @@ async function salvarTarefa() {
       Carregando dados do formulário...
     </p>
 
-    <p v-else-if="erro && projetos.length === 0" class="mensagem mensagem-erro" role="alert">
-      {{ erro }}
-    </p>
+    <section v-else-if="erroCarregamento" class="mensagem mensagem-erro" role="alert">
+      <p>{{ erro }}</p>
 
-    <form
-      v-else
-      class="formulario-tarefa"
-      @submit.prevent="salvarTarefa"
-    >
+      <RouterLink class="botao-secundario" :to="{ name: 'tarefas' }">
+        Voltar para tarefas
+      </RouterLink>
+    </section>
+
+    <form v-else class="formulario-tarefa" @submit.prevent="salvarTarefa">
       <p v-if="erro" class="mensagem mensagem-erro" role="alert">
         {{ erro }}
       </p>
@@ -195,19 +195,10 @@ async function salvarTarefa() {
       <div class="formulario-campo">
         <label for="projetoId">Projeto vinculado *</label>
 
-        <select
-          id="projetoId"
-          v-model="projetoId"
-          required
-          :disabled="projetos.length === 0 || salvando"
-        >
+        <select id="projetoId" v-model="projetoId" required :disabled="projetos.length === 0 || salvando">
           <option value="" disabled>Selecione um projeto</option>
 
-          <option
-            v-for="projeto in projetos"
-            :key="projeto.id"
-            :value="projeto.id"
-          >
+          <option v-for="projeto in projetos" :key="projeto.id" :value="projeto.id">
             Projeto #{{ projeto.id }} — {{ projeto.nome }} ({{ projeto.disciplina }})
           </option>
         </select>
@@ -216,26 +207,15 @@ async function salvarTarefa() {
       <div class="formulario-campo">
         <label for="titulo">Título da tarefa *</label>
 
-        <input
-          id="titulo"
-          v-model="titulo"
-          type="text"
-          maxlength="150"
-          placeholder="Ex.: Desenvolver tela de listagem"
-          required
-          :disabled="salvando"
-        />
+        <input id="titulo" v-model="titulo" type="text" maxlength="150" placeholder="Ex.: Desenvolver tela de listagem"
+          required :disabled="salvando" />
       </div>
 
       <div class="formulario-campo">
         <label for="descricao">Descrição</label>
 
-        <textarea
-          id="descricao"
-          v-model="descricao"
-          placeholder="Descreva as instruções ou requisitos desta tarefa..."
-          :disabled="salvando"
-        ></textarea>
+        <textarea id="descricao" v-model="descricao" placeholder="Descreva as instruções ou requisitos desta tarefa..."
+          :disabled="salvando"></textarea>
       </div>
 
       <div class="formulario-linha">
@@ -253,12 +233,7 @@ async function salvarTarefa() {
         <div class="formulario-campo">
           <label for="prioridade">Prioridade *</label>
 
-          <select
-            id="prioridade"
-            v-model="prioridade"
-            required
-            :disabled="salvando"
-          >
+          <select id="prioridade" v-model="prioridade" required :disabled="salvando">
             <option value="baixa">Baixa</option>
             <option value="media">Média</option>
             <option value="alta">Alta</option>
@@ -270,34 +245,19 @@ async function salvarTarefa() {
         <div class="formulario-campo">
           <label for="responsavel">Responsável</label>
 
-          <input
-            id="responsavel"
-            v-model="responsavel"
-            type="text"
-            placeholder="Nome do integrante responsável"
-            :disabled="salvando"
-          />
+          <input id="responsavel" v-model="responsavel" type="text" placeholder="Nome do integrante responsável"
+            :disabled="salvando" />
         </div>
 
         <div class="formulario-campo">
           <label for="prazo">Prazo de conclusão *</label>
 
-          <input
-            id="prazo"
-            v-model="prazo"
-            type="date"
-            required
-            :disabled="salvando"
-          />
+          <input id="prazo" v-model="prazo" type="date" required :disabled="salvando" />
         </div>
       </div>
 
       <div class="formulario-acoes">
-        <button
-          type="submit"
-          class="botao"
-          :disabled="salvando || projetos.length === 0"
-        >
+        <button type="submit" class="botao" :disabled="salvando || projetos.length === 0">
           {{
             salvando
               ? 'Salvando...'
@@ -307,12 +267,9 @@ async function salvarTarefa() {
           }}
         </button>
 
-        <RouterLink
-          class="botao-secundario"
-          :to="modoEdicao
-            ? { name: 'detalhe-tarefa', params: { id: idTarefa } }
-            : '/'"
-        >
+        <RouterLink class="botao-secundario" :to="modoEdicao
+          ? { name: 'detalhe-tarefa', params: { id: idTarefa } }
+          : '/'">
           Cancelar
         </RouterLink>
       </div>
