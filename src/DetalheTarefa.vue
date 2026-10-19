@@ -92,6 +92,9 @@ watch(idTarefa, buscarTarefa, { immediate: true })
           <dd>{{ formatarData(tarefa.prazo) }}</dd>
         </div>
       </dl>
+      <RouterLink class="botao-link" :to="{ name: 'editar-tarefa', params: { id: tarefa.id } }">
+        Editar tarefa
+      </RouterLink>
       <RouterLink class="botao-link" :to="{ name: 'detalhe-projeto', params: { id: tarefa.projetoId } }">
         Ver projeto relacionado
       </RouterLink>
