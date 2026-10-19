@@ -1,4 +1,20 @@
-import type { Projeto, Tarefa } from "./tipos";
+import type {
+    Projeto,
+    Tarefa,
+    NovoProjeto,
+    AtualizarProjeto,
+    NovaTarefa,
+    AtualizarTarefa,
+} from "./tipos";
+
+export type {
+    Projeto,
+    Tarefa,
+    NovoProjeto,
+    AtualizarProjeto,
+    NovaTarefa,
+    AtualizarTarefa,
+};
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -44,7 +60,7 @@ export function buscarProjeto(id: string): Promise<ProjetoComTarefas> {
     );
 }
 
-export async function criarTarefa(tarefa: Omit<Tarefa, "id">): Promise<Tarefa> {
+export async function criarTarefa(tarefa: NovaTarefa): Promise<Tarefa> {
     const tarefas = await listarTarefas();
     const idsNumericos = tarefas
         .map((t) => Number(t.id))
@@ -62,10 +78,10 @@ export async function criarTarefa(tarefa: Omit<Tarefa, "id">): Promise<Tarefa> {
 
 export function atualizarTarefa(
     id: string,
-    tarefa: Omit<Tarefa, "id">,
+    tarefa: AtualizarTarefa,
 ): Promise<Tarefa> {
     return requisitar<Tarefa>(`/tarefas/${encodeURIComponent(id)}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
             "Content-Type": "application/json",
         },
@@ -73,7 +89,7 @@ export function atualizarTarefa(
     });
 }
 
-export async function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projeto> {
+export async function criarProjeto(projeto: NovoProjeto): Promise<Projeto> {
     const projetos = await listarProjetos();
     const idsNumericos = projetos
         .map((p) => Number(p.id))
@@ -89,13 +105,12 @@ export async function criarProjeto(projeto: Omit<Projeto, "id">): Promise<Projet
     });
 }
 
-
 export function atualizarProjeto(
     id: string,
-    projeto: Omit<Projeto, "id">,
+    projeto: AtualizarProjeto,
 ): Promise<Projeto> {
     return requisitar<Projeto>(`/projetos/${encodeURIComponent(id)}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
             "Content-Type": "application/json",
         },
