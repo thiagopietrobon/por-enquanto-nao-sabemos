@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, nextTick, ref, watch } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import {
   buscarProjeto,
   criarProjeto,
@@ -13,47 +13,149 @@ const router = useRouter()
 const modoEdicao = computed(() => Boolean(rota.params.id))
 const idProjeto = computed(() => String(rota.params.id ?? ''))
 
+const carregando = ref(true)
+const salvando = ref(false)
+const erro = ref('')
+const erroCarregamento = ref(false)
+const formularioRef = ref<HTMLFormElement | null>(null)
+
 const nome = ref('')
 const descricao = ref('')
 const disciplina = ref('')
 const criadoEm = ref('')
 
-const carregando = ref(false)
-const salvando = ref(false)
-const erro = ref('')
+const erros = ref({
+  nome: '',
+  descricao: '',
+  disciplina: '',
+})
 
-onMounted(async () => {
+let requisicaoAtual = 0
+
+function limparErros() {
+  erros.value = {
+    nome: '',
+    descricao: '',
+    disciplina: '',
+  }
+}
+
+function limparFormulario() {
+  nome.value = ''
+  descricao.value = ''
+  disciplina.value = ''
+  criadoEm.value = ''
+  limparErros()
+}
+
+async function carregarFormulario() {
+  const numeroRequisicao = ++requisicaoAtual
+
+  erro.value = ''
+  erroCarregamento.value = false
+  limparErros()
+
   if (!modoEdicao.value) {
+    limparFormulario()
+    carregando.value = false
     return
   }
 
   carregando.value = true
-  erro.value = ''
 
   try {
-    const projeto = await buscarProjeto(String(rota.params.id))
+    const projeto = await buscarProjeto(idProjeto.value)
+
+    if (numeroRequisicao !== requisicaoAtual) return
 
     nome.value = projeto.nome
     descricao.value = projeto.descricao
     disciplina.value = projeto.disciplina
     criadoEm.value = projeto.criadoEm
-  } catch {
-    erro.value = 'Não foi possível carregar o projeto.'
+  } catch (erroBusca) {
+    if (numeroRequisicao !== requisicaoAtual) return
+
+    erroCarregamento.value = true
+    erro.value = erroBusca instanceof Error
+      ? erroBusca.message
+      : 'Não foi possível carregar os dados do projeto.'
   } finally {
-    carregando.value = false
+    if (numeroRequisicao === requisicaoAtual) {
+      carregando.value = false
+    }
   }
-})
+}
+
+watch(
+  [idProjeto, modoEdicao],
+  carregarFormulario,
+  { immediate: true },
+)
+
+function validarFormulario(): boolean {
+  limparErros()
+
+  let valido = true
+
+  if (!nome.value.trim()) {
+    erros.value.nome = 'Informe o nome do projeto.'
+    valido = false
+  }
+
+  if (!descricao.value.trim()) {
+    erros.value.descricao = 'Informe a descrição do projeto.'
+    valido = false
+  }
+
+  if (!disciplina.value.trim()) {
+    erros.value.disciplina = 'Informe a disciplina do projeto.'
+    valido = false
+  }
+
+  return valido
+}
+
+function validarCampo(campo: keyof typeof erros.value) {
+  switch (campo) {
+    case 'nome':
+      erros.value.nome = nome.value.trim()
+        ? ''
+        : 'Informe o nome do projeto.'
+      break
+
+    case 'descricao':
+      erros.value.descricao = descricao.value.trim()
+        ? ''
+        : 'Informe a descrição do projeto.'
+      break
+
+    case 'disciplina':
+      erros.value.disciplina = disciplina.value.trim()
+        ? ''
+        : 'Informe a disciplina do projeto.'
+      break
+  }
+}
 
 async function salvarProjeto() {
   if (salvando.value) return
   
-  salvando.value = true
   erro.value = ''
 
+  if (!validarFormulario()) {
+    await nextTick()
+    formularioRef.value
+      ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?.focus()
+    return
+  }
+
+  salvando.value = true
+
   const dadosProjeto = {
-    nome: nome.value,
-    descricao: descricao.value,
-    disciplina: disciplina.value,
+    nome: nome.value.trim(),
+    descricao: descricao.value.trim(),
+    disciplina: disciplina.value.trim(),
     criadoEm: modoEdicao.value
       ? criadoEm.value
       : new Date().toISOString(),
@@ -62,16 +164,22 @@ async function salvarProjeto() {
   try {
     if (modoEdicao.value) {
       await atualizarProjeto(
-        String(rota.params.id),
+        idProjeto.value,
         dadosProjeto,
       )
+
+      await router.push({
+      name: 'detalhe-projeto',
+      params: { id: idProjeto.value },
+      })
     } else {
       await criarProjeto(dadosProjeto)
+      await router.push('/projetos')
     }
-
-    await router.push('/projetos')
-  } catch {
-    erro.value = 'Não foi possível salvar o projeto.'
+  } catch (erroSalvar) {
+    erro.value = erroSalvar instanceof Error
+    ? erroSalvar.message
+    : 'Não foi possível salvar o projeto. Verifique se a API está ativa.'
   } finally {
     salvando.value = false
   }
@@ -95,22 +203,36 @@ async function salvarProjeto() {
       </h1>
     </div>
 
-    <p v-if="erro" class="mensagem mensagem-erro" role="alert">
-      {{ erro }}
+    <p v-if="carregando"  class="mensagem" role="status">
+      Carregando dados do formulário...
     </p>
 
-    <p v-if="carregando"  class="mensagem" role="status" aria-live="polite">
-      Carregando projeto...
-    </p>
+    <section
+      v-else-if="erroCarregamento"
+      class="mensagem mensagem-erro"
+      role="alert"
+    >
+      <p>{{ erro }}</p>
+
+      <RouterLink class="botao-secundario" :to="{ name: 'projetos' }">
+        Voltar para projetos
+      </RouterLink>
+    </section>
 
     <form
       v-else
+      ref="formularioRef"
       class="formulario-projeto"
       aria-labelledby="titulo-formulario-projeto"
+      novalidate
       @submit.prevent="salvarProjeto"
     >
       <p id="projeto-campos-obrigatorios" class="texto-ajuda">
         Os campos marcados com * são obrigatórios.
+      </p>
+
+      <p v-if="erro" class="mensagem mensagem-erro" role="alert">
+        {{ erro }}
       </p>
 
       <div class="formulario-campo">
@@ -121,8 +243,22 @@ async function salvarProjeto() {
             type="text"
             required
             :disabled="salvando"
-            aria-describedby="projeto-campos-obrigatorios"
+            :aria-invalid="Boolean(erros.nome)"
+            :aria-describedby="erros.nome
+              ? 'projeto-campos-obrigatorios erro-nome'
+              : 'projeto-campos-obrigatorios'"
+            @input="validarCampo('nome')"
+            @blur="validarCampo('nome')"
           />
+          
+          <small
+            v-if="erros.nome"
+            id="erro-nome"
+            class="mensagem-erro"
+            role="alert"
+          >
+            {{ erros.nome }}
+          </small>
       </div>
 
       <div class="formulario-campo">
@@ -132,8 +268,22 @@ async function salvarProjeto() {
             v-model="descricao"
             required
             :disabled="salvando"
-            aria-describedby="projeto-campos-obrigatorios"
+            :aria-invalid="Boolean(erros.descricao)"
+            :aria-describedby="erros.descricao
+              ? 'projeto-campos-obrigatorios erro-descricao'
+              : 'projeto-campos-obrigatorios'"
+            @input="validarCampo('descricao')"
+            @blur="validarCampo('descricao')"
           ></textarea>
+
+          <small
+            v-if="erros.descricao"
+            id="erro-descricao"
+            class="mensagem-erro"
+            role="alert"
+          >
+            {{ erros.descricao }}
+          </small>
       </div>
 
       <div class="formulario-campo">
@@ -144,14 +294,43 @@ async function salvarProjeto() {
             type="text"
             required
             :disabled="salvando"
-            aria-describedby="projeto-campos-obrigatorios"
+            :aria-invalid="Boolean(erros.disciplina)"
+            :aria-describedby="erros.disciplina
+              ? 'projeto-campos-obrigatorios erro-disciplina'
+              : 'projeto-campos-obrigatorios'"
+            @input="validarCampo('disciplina')"
+            @blur="validarCampo('disciplina')"
           />
+          
+          <small
+            v-if="erros.disciplina"
+            id="erro-disciplina"
+            class="mensagem-erro"
+            role="alert"
+          >
+            {{ erros.disciplina }}
+          </small>
       </div>
 
       <div class="formulario-acoes">
         <button type="submit" class="botao" :disabled="salvando">
-          {{ salvando ? 'Salvando...' : 'Salvar projeto' }}
+          {{ 
+            salvando 
+              ? 'Salvando...' 
+              : modoEdicao
+                ? 'Salvar alterações'
+                : 'Salvar projeto'
+          }}
         </button>
+
+        <RouterLink
+          class="botao-secundario"
+          :to="modoEdicao
+            ? { name: 'detalhe-projeto', params: { id: idProjeto } }
+            : '/projetos'"
+        >
+          Cancelar
+        </RouterLink>
       </div>
     </form>
   </section>
