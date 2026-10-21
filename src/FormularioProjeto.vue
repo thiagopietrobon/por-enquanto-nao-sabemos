@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -12,6 +11,7 @@ const rota = useRoute()
 const router = useRouter()
 
 const modoEdicao = computed(() => Boolean(rota.params.id))
+const idProjeto = computed(() => String(rota.params.id ?? ''))
 
 const nome = ref('')
 const descricao = ref('')
@@ -45,6 +45,8 @@ onMounted(async () => {
 })
 
 async function salvarProjeto() {
+  if (salvando.value) return
+  
   salvando.value = true
   erro.value = ''
 
@@ -77,54 +79,80 @@ async function salvarProjeto() {
 </script>
 
 <template>
-  <main class="pagina">
-        <h1>{{ modoEdicao ? 'Editar projeto' : 'Novo projeto' }}</h1>
+  <section class="pagina">
+    <RouterLink
+      class="link-voltar"
+      :to="modoEdicao
+        ? { name: 'detalhe-projeto', params: { id: idProjeto } }
+        : '/projetos'"
+    >
+      ← {{ modoEdicao ? 'Voltar para projeto' : 'Voltar para projetos' }}
+    </RouterLink>
 
-        <p v-if="erro" role="alert">
-        {{ erro }}
-        </p>
+    <div class="titulo-pagina">
+      <h1 id="titulo-formulario-projeto">
+        {{ modoEdicao ? 'Editar projeto' : 'Novo projeto' }}
+      </h1>
+    </div>
 
-        <p v-if="carregando">
-        Carregando projeto...
-        </p>
+    <p v-if="erro" class="mensagem mensagem-erro" role="alert">
+      {{ erro }}
+    </p>
 
-        <form
-  v-else
-  class="formulario-projeto"
-  @submit.prevent="salvarProjeto"
->
-        <div class="formulario-campo">
-            <label for="nome">Nome do projeto</label>
-            <input
+    <p v-if="carregando"  class="mensagem" role="status" aria-live="polite">
+      Carregando projeto...
+    </p>
+
+    <form
+      v-else
+      class="formulario-projeto"
+      aria-labelledby="titulo-formulario-projeto"
+      @submit.prevent="salvarProjeto"
+    >
+      <p id="projeto-campos-obrigatorios" class="texto-ajuda">
+        Os campos marcados com * são obrigatórios.
+      </p>
+
+      <div class="formulario-campo">
+          <label for="nome">Nome do projeto *</label>
+          <input
             id="nome"
             v-model="nome"
             type="text"
             required
-            />
-        </div>
+            :disabled="salvando"
+            aria-describedby="projeto-campos-obrigatorios"
+          />
+      </div>
 
-        <div class="formulario-campo">
-            <label for="descricao">Descrição</label>
-            <textarea
+      <div class="formulario-campo">
+          <label for="descricao">Descrição *</label>
+          <textarea
             id="descricao"
             v-model="descricao"
             required
-            ></textarea>
-        </div>
+            :disabled="salvando"
+            aria-describedby="projeto-campos-obrigatorios"
+          ></textarea>
+      </div>
 
-        <div class="formulario-campo">
-            <label for="disciplina">Disciplina</label>
-            <input
+      <div class="formulario-campo">
+          <label for="disciplina">Disciplina *</label>
+          <input
             id="disciplina"
             v-model="disciplina"
             type="text"
             required
-            />
-        </div>
+            :disabled="salvando"
+            aria-describedby="projeto-campos-obrigatorios"
+          />
+      </div>
 
-        <button type="submit" :disabled="salvando">
-            {{ salvando ? 'Salvando...' : 'Salvar projeto' }}
+      <div class="formulario-acoes">
+        <button type="submit" class="botao" :disabled="salvando">
+          {{ salvando ? 'Salvando...' : 'Salvar projeto' }}
         </button>
-        </form>
-  </main>
+      </div>
+    </form>
+  </section>
 </template>

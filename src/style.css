@@ -530,3 +530,39 @@ h1 {
     }
 }
 
+/* Foco visível para navegação por teclado, sem depender do hover. */
+a:focus-visible,
+button:focus-visible,
+.formulario-campo input:focus-visible,
+.formulario-campo select:focus-visible,
+.formulario-campo textarea:focus-visible {
+    outline: 3px solid #174f87;
+    outline-offset: 3px;
+}
+
+/* O erro é indicado por texto no HTML e também por uma borda mais espessa. */
+.formulario-campo input[aria-invalid="true"],
+.formulario-campo select[aria-invalid="true"],
+.formulario-campo textarea[aria-invalid="true"] {
+    border: 2px solid #9c3333;
+    background: #fff7f7;
+}
+
+.texto-ajuda {
+    margin: 0 0 20px;
+    color: #40566d;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Não animar elementos quando a pessoa pede redução de movimento. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

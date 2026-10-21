@@ -27,6 +27,13 @@
       "descricao": "a",
       "disciplina": "Desenvolvimento Frontend",
       "criadoEm": "2026-10-16T17:07:59.961Z"
+    },
+    {
+      "id": "pZ_db1HHxXc",
+      "nome": "TESTE ENTER",
+      "descricao": "ENTER",
+      "disciplina": "1",
+      "criadoEm": "2026-10-21T16:27:04.224Z"
     }
   ],
   "tarefas": [

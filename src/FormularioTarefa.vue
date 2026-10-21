@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import {
   atualizarTarefa,
@@ -27,6 +27,7 @@ const carregando = ref(true)
 const salvando = ref(false)
 const erro = ref('')
 const erroCarregamento = ref(false)
+const formularioRef = ref<HTMLFormElement | null>(null)
 
 const projetoId = ref(String(rota.query.projetoId ?? ''))
 const titulo = ref('')
@@ -196,7 +197,13 @@ async function salvarTarefa() {
 
   erro.value = ''
 
-  if (!validarFormulario()) return
+  if (!validarFormulario()) {
+    await nextTick()
+    formularioRef.value
+      ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?.focus()
+    return
+  }
 
   salvando.value = true
 
@@ -233,7 +240,7 @@ async function salvarTarefa() {
 </script>
 
 <template>
-  <main class="pagina">
+  <section class="pagina">
     <RouterLink
       class="link-voltar"
       :to="modoEdicao
@@ -277,10 +284,13 @@ async function salvarTarefa() {
 
     <form
       v-else
+      ref="formularioRef"
       class="formulario-tarefa"
       novalidate
       @submit.prevent="salvarTarefa"
     >
+      <p class="texto-ajuda">Os campos marcados com * são obrigatórios.</p>
+
       <p v-if="erro" class="mensagem mensagem-erro" role="alert">
         {{ erro }}
       </p>
@@ -484,5 +494,5 @@ async function salvarTarefa() {
         </RouterLink>
       </div>
     </form>
-  </main>
+  </section>
 </template>
