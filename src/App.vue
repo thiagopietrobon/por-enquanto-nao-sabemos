@@ -9,6 +9,7 @@
 
         <nav class="navegacao" aria-label="Navegação principal">
           <RouterLink to="/" class="link-nav" exact-active-class="ativo">Tarefas</RouterLink>
+          <RouterLink to="/quadro" class="link-nav" active-class="ativo">Quadro</RouterLink>
           <RouterLink to="/projetos" class="link-nav" active-class="ativo">Projetos</RouterLink>
         </nav>
       </div>
