@@ -78,8 +78,7 @@ onMounted(buscarTarefas)
         v-for="tarefa in tarefasFiltradas"
         :key="tarefa.id"
         :tarefa="tarefa"
-        @mudar-status="mudarStatusTarefa"
-      />
+        :ao-mudar-status="mudarStatusTarefa"      />
     </section>
   </section>
 </template>

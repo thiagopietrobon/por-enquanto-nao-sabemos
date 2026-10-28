@@ -117,8 +117,7 @@ onMounted(buscarTarefas)
               v-for="tarefa in coluna.tarefas"
               :key="tarefa.id"
               :tarefa="tarefa"
-              @mudar-status="mudarStatusTarefa"
-            />
+              :ao-mudar-status="mudarStatusTarefa"            />
           </div>
         </section>
       </div>
