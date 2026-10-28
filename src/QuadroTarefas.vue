@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { agruparPorStatus, filtrarTarefas } from './derivar'
 import type { Status } from './tipos'
@@ -67,7 +67,6 @@ onMounted(buscarTarefas)
     <!-- Barra de Filtros compartilhada via Pinia -->
     <BarraFiltros />
 
-    <p v-if="carregando" class="mensagem" role="status">Carregando quadro...</p>
     <p v-if="erroAtualizacao" class="mensagem mensagem-erro" role="alert">
       {{ erroAtualizacao }}
     </p>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { filtrarTarefas } from './derivar'
 import { useFiltrosStore } from './filtrosStore'
@@ -51,8 +51,6 @@ onMounted(buscarTarefas)
 
     <!-- Barra de Filtros compartilhada via Pinia -->
     <BarraFiltros />
-
-    <p v-if="carregando" class="mensagem" role="status">Carregando tarefas...</p>
     
     <p v-if="erroAtualizacao" class="mensagem mensagem-erro" role="alert">
       {{ erroAtualizacao }}
