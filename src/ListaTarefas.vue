@@ -39,7 +39,7 @@ onMounted(buscarTarefas)
         <RouterLink to="/tarefas/nova" class="botao">
           + Nova tarefa
         </RouterLink>
-      </div>
+
     </div>
 
     <!-- Barra de Filtros compartilhada via Pinia -->
