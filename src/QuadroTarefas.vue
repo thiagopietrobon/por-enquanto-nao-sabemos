@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { atualizarTarefa, listarTarefas } from './api'
-import type { Status, Tarefa } from './tipos'
 import { agruparPorStatus, filtrarTarefas } from './derivar'
+import type { Status } from './tipos'
 import { useFiltrosStore } from './filtrosStore'
 import CartaoTarefa from './components/CartaoTarefa.vue'
 import BarraFiltros from './components/BarraFiltros.vue'
+import { useTarefas } from './composables/useTarefas'
+
+const {
+  tarefas,
+  carregando,
+  erroCarregamento,
+  erroAtualizacao,
+  buscarTarefas,
+  mudarStatusTarefa,
+} = useTarefas()
 
 const storeFiltros = useFiltrosStore()
-
-const tarefas = ref<Tarefa[]>([])
-const carregando = ref(true)
-const erro = ref('')
 
 const rotulosStatus: Record<Status, string> = {
   'a-fazer': 'A fazer',
@@ -21,7 +26,6 @@ const rotulosStatus: Record<Status, string> = {
   'concluida': 'Concluída',
 }
 
-// Derivado conforme os slides 14 e 17:
 // agruparPorStatus(filtrarTarefas(tarefas, filtros)) dentro do computed!
 const colunas = computed(() => {
   const filtradas = filtrarTarefas(tarefas.value, storeFiltros)
@@ -31,36 +35,6 @@ const colunas = computed(() => {
 const totalFiltradas = computed(() => {
   return colunas.value.reduce((total, col) => total + col.tarefas.length, 0)
 })
-
-async function buscarTarefas() {
-  carregando.value = true
-  erro.value = ''
-
-  try {
-    tarefas.value = await listarTarefas()
-  } catch (erroBusca) {
-    erro.value = erroBusca instanceof Error
-      ? erroBusca.message
-      : 'Ocorreu um erro ao carregar as tarefas.'
-  } finally {
-    carregando.value = false
-  }
-}
-
-// Mudar o status grava com PATCH e substitui o objeto no array (Slide 20)
-async function mudarStatusTarefa(id: string, novoStatus: Status) {
-  try {
-    const atualizada = await atualizarTarefa(id, { status: novoStatus })
-    const index = tarefas.value.findIndex((t) => t.id === id)
-    if (index !== -1) {
-      tarefas.value[index] = atualizada
-    }
-  } catch (erroStatus) {
-    erro.value = erroStatus instanceof Error
-      ? erroStatus.message
-      : 'Não foi possível atualizar o status da tarefa.'
-  }
-}
 
 onMounted(buscarTarefas)
 </script>
@@ -94,9 +68,18 @@ onMounted(buscarTarefas)
     <BarraFiltros />
 
     <p v-if="carregando" class="mensagem" role="status">Carregando quadro...</p>
-    <p v-else-if="erro" class="mensagem mensagem-erro" role="alert">
-      {{ erro }} Verifique se o json-server está rodando na porta 3000.
+    <p v-if="erroAtualizacao" class="mensagem mensagem-erro" role="alert">
+      {{ erroAtualizacao }}
     </p>
+    
+    <p v-if="carregando" class="mensagem" role="status">
+      Carregando quadro...
+    </p>
+    
+    <p v-else-if="erroCarregamento" class="mensagem mensagem-erro" role="alert">
+      {{ erroCarregamento }}
+    </p>
+    
     <div v-else-if="tarefas.length === 0" class="mensagem">
       Nenhuma tarefa cadastrada.
     </div>
