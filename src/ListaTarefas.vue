@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
 import { filtrarTarefas } from './derivar'
 import { useFiltrosStore } from './filtrosStore'
 import CartaoTarefa from './components/CartaoTarefa.vue'
@@ -35,10 +34,6 @@ onMounted(buscarTarefas)
       <p class="texto-introdutorio">Acompanhe as atividades e consulte os detalhes de cada tarefa.</p>
 
       <AlternadorVisaoTarefas visao-ativa="lista" />
-
-        <RouterLink to="/tarefas/nova" class="botao">
-          + Nova tarefa
-        </RouterLink>
 
     </div>
 

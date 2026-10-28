@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
 import { agruparPorStatus, filtrarTarefas } from './derivar'
 import type { Status } from './tipos'
 import { useFiltrosStore } from './filtrosStore'
@@ -51,9 +50,6 @@ onMounted(buscarTarefas)
 
       <AlternadorVisaoTarefas visao-ativa="quadro" />
 
-        <RouterLink to="/tarefas/nova" class="botao">
-          + Nova tarefa
-        </RouterLink>
     </div>
 
     <!-- Barra de Filtros compartilhada via Pinia -->
