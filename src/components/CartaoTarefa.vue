@@ -49,8 +49,6 @@ async function aoAlterarStatus(event: Event) {
 }
 </script>
 
-</script>
-
 <template>
   <article class="cartao cartao-tarefa">
     <div class="cartao-etiquetas">
